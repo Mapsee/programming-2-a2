@@ -59,7 +59,7 @@ print(f"{counter}/5\n")
 # Rate the quiz
 rating = input("!!!ALERT BOSS FIGHT!!! Bonus Question: Did you enjoy the quiz? ")
 counter += 1
-print(f"Alright thanks bro\n{counter}/5")
+print(f"Alright thanks bro\n{counter}/5\n")
 
 # Print results
 if counter == 0:
