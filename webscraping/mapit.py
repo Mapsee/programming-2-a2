@@ -4,11 +4,17 @@
 
 import webbrowser
 import sys
+import pyperclip
 
-address = " ".join(sys.argv[1:])
+# if there are NO ARGUMENTS
+# grab address from the clipboard
 
-# TODO: open the browser at a GMAPS page with the arguments
-prefix = "https://google.come/maps/place/"
+if len(sys.argv) < 2:
+    address = pyperclip.paste()
+else:
+    address = " ".join(sys.argv[1:])
+
+print(f"finding {address}")
+
+prefix = "https://google.com/maps/place/"
 webbrowser.open(prefix+address)
-
-# TODO: add feature to grab address from clipyard
