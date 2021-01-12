@@ -3,7 +3,7 @@
 # Initial goal: get a block moving on the screen
 #       * x and y direction
 #       * modify its velocity
-# Stretch goal: replace the block with an image of the DVD logo (like the Office Segment)
+# TODO Stretch goal: replace the block with an image of the DVD logo (like the Office Segment)
 
 import random
 import pygame
@@ -23,7 +23,7 @@ TITLE = "DVD Image"
 #   * colour
 
 
-class Block():
+class Block:
     def __init__(self):
         # Initial location in the middle
         self.x, self.y = (WIDTH/2, HEIGHT/2)
