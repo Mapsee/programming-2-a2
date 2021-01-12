@@ -48,9 +48,9 @@ class Snow:
         """
         pygame.draw.circle(
             screen,
-            self.size,
             self.colour,
-            (self.x, self.y)
+            (self.x, self.y),
+            self.size
         )
 
 
@@ -73,13 +73,13 @@ def main():
         snow_list.append(snow)
 
     # Create snow list with 150 bigger snow that travels faster
-    anothersnow_list = []
+    closer_snow_list = []
     for i in range(MAX_SNOW):
         snow = Snow()
         snow.size = random.randrange(2, 5)
         snow.y_vel = random.randrange(3, 5)
-        anothersnow_list.append(snow)
-        anothersnow_list.append(snow)
+        closer_snow_list.append(snow)
+        closer_snow_list.append(snow)
 
     # ----- MAIN LOOP
     while not done:
@@ -91,14 +91,14 @@ def main():
         # ----- LOGIC
         for snow in snow_list:
             snow.update()
-            for snow in anothersnow_list:
-                snow.update()
+        for snow in closer_snow_list:
+            snow.update()
 
         # ----- DRAW
         screen.fill(BLACK)
         for snow in snow_list:
             snow.draw(screen)
-        for snow in anothersnow_list:
+        for snow in closer_snow_list:
             snow.draw(screen)
 
         # ----- UPDATE
