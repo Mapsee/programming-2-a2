@@ -127,12 +127,15 @@ def main():
         for block in blocks_hit_list:
             score += 1
             print(score)
+            if score == 75:
+                print("You win!")
+                exit()
 
         death_list = pygame.sprite.spritecollide(player, enemy_sprites, False)
         for enemies in death_list:
             lives -= 1
             if lives == 0:
-                pygame.time.wait(3000)
+                pygame.time.wait(1000)
                 print("You died")
                 exit()
 
