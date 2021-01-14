@@ -59,20 +59,26 @@ print(f"{counter}/5\n")
 # Rate the quiz
 rating = input("!!!ALERT BOSS FIGHT!!! Bonus Question: Did you enjoy the quiz? ")
 counter += 1
-print(f"Alright thanks bro\n{counter}/5")
+print(f"Alright thanks bro\n{counter}/5\n")
 
 # Print results
 if counter == 0:
-    print("You failed :(, You got 0/5 in total")
+    math = (0/5)*100
+    print(f"You failed :(, You got 0/5 in total that's {math}% ")
 elif counter == 1:
-    print("At least you got a point yay! 1/5")
+    math = (1/5)*100
+    print(f"At least you got a point yay! 1/5 that's {math}% ")
 elif counter == 2:
-    print("Could be better bro, 2/5")
+    math = (2/5)*100
+    print(f"Could be better bro, 2/5 that's {math}% ")
 elif counter == 3:
-    print("You passed! 3/5")
+    math = (3/5)*100
+    print(f"You passed! 3/5 that's {math}% ")
 elif counter == 4:
-    print("Chicken nuggets, 4/5")
+    math = (4/5)*100
+    print(f"Chicken nuggets, 4/5 that's {math}% ")
 elif counter == 5:
-    print("Good job you got full marks! 5/5")
+    print(f"Good job you got full marks! 5/5 that's 100%")
 else:
-    print("Woooaaahhhh you scored 6/5, your brain big ")
+    math = (counter/5)*100
+    print(f"Woooaaahhhh you scored 6/5 that's {math}%, your brain big")
