@@ -30,7 +30,7 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
 # Screen dimensions
-SCREEN_WIDTH = 800
+SCREEN_WIDTH = 1920
 SCREEN_HEIGHT = 600
 
 
@@ -52,7 +52,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface([width, height])
         self.image.fill(RED)
 
-        # Set a referance to the image rect.
+        # Set a reference to the image rect.
         self.rect = self.image.get_rect()
 
         # Set speed vector of player
@@ -198,6 +198,8 @@ class Level_01(Level):
         level = [[210, 70, 500, 500],
                  [210, 70, 200, 400],
                  [210, 70, 600, 300],
+                 [100, 70, 1000, 100],
+                 [150, 70, 1000, 300]
                  ]
 
         # Go through the array above and add platforms
