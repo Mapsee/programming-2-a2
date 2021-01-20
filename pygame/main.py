@@ -1,5 +1,8 @@
 # reach the end game
 
+# TODO: Make it so player can move diagonally without choppiness
+# TODO: Collision with block forces player to not move smoothly (Line 48)
+
 import pygame
 
 # ----- CONSTANTS
@@ -43,15 +46,7 @@ class Player(pygame.sprite.Sprite):
 
         # See if we hit anything
         block_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
-        for block in block_hit_list:
-            # If we are moving right,
-            # set our right side to the left side of the item we hit
-            if self.vel_x > 0:
-                self.rect.right = block.rect.left
-            elif self.vel_x < 0:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
-            self.vel_y = 0
+
 
     # Player movement
     def go_left(self):
@@ -63,10 +58,10 @@ class Player(pygame.sprite.Sprite):
         self.vel_x = 3
 
     def go_up(self):
-        self.vel_y = 3
+        self.vel_y = -3
 
     def go_down(self):
-        self.vel_y = -3
+        self.vel_y = 3
 
     def stop(self):
         """ Called when the user lets off the keyboard. """
@@ -115,7 +110,12 @@ class Level_01(Level):
         Level.__init__(self, player)
 
         # TODO: List the platforms here
-        level = [[210, 70, 500, 500]]
+        level = [[210, 70, 500, 500],
+                 [210, 70, 200, 400],
+                 [210, 70, 600, 300],
+                 [100, 70, 1000, 100],
+                 [150, 70, 1000, 300]
+                 ]
 
         # Go through array above and add platforms
         for platform in level:
@@ -188,8 +188,9 @@ def main():
         current_level.update()
 
         # ----- DRAW
+        current_level.draw(screen)
         all_sprites.draw(screen)
-        screen.fill(BLACK)
+
 
         # ----- UPDATE
         pygame.display.flip()
