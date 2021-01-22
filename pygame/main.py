@@ -20,45 +20,6 @@ dimensions = (WIDTH, HEIGHT)
 screen = pygame.display.set_mode(dimensions)
 
 
-# TODO: Create menu to start game
-def draw_text(text, font_name, size, text_color, position_x, position_y, position):
-    # Load fonts
-    font = pygame.font.Font(font_name, size)
-
-    text_plane = font.render(text, True, text_color)
-    text_rect = text_plane.get_rect()
-
-    # Text position
-    if position == "midtop":
-        text_rect.midtop = (int(position_x), int(position_y))
-    elif position == "topright":
-        text_rect.topright = (int(position_x), int(position_y))
-
-    screen.blit(text_plane, text_rect)
-
-
-# Enemies
-class Spikes (pygame.sprite.Sprite):
-    def __init__(self, speed=5):
-        super().__init__()
-
-        # Image
-        width = 70
-        height = 70
-        self.image = pygame.Surface([width, height])
-        self.image.fill(RED)
-
-        # Rect
-        self.rect = self.image.get_rect()
-
-        self.rect.bottom = height-11
-        self.rect.left = width
-
-        self.speed = speed
-
-        self.range = 350
-
-
 # User controlled block
 class Player (pygame.sprite.Sprite):
     def __init__(self):
@@ -84,11 +45,6 @@ class Player (pygame.sprite.Sprite):
         self.calc_grav()
         self.rect.y += self.vel_y
 
-        # TODO: Check if we collided with something
-        #block_hit_list = pygame.sprite.spritecollide(self, self.enemy_list, False)
-        #for block in block_hit_list:
-        #    quit()
-
     def calc_grav(self):
         if self.vel_y == 0:
             self.vel_y = 1
@@ -109,9 +65,21 @@ class Player (pygame.sprite.Sprite):
         if len(platform_hit_list) > 0 or self.rect.bottom >= HEIGHT:
             self.vel_y = -10
 
-# TODO: Add the track
-# TODO: Add the background scenery (clouds)
-# TODO: Add enemies
+
+class Track (pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+
+        width = WIDTH
+        height = 125
+
+        self.image = pygame.Surface([width, height])
+        self.image.fill(GRAY)
+
+        self.rect = self.image.get_rect()
+
+        if self.rect.y < HEIGHT - 125:
+            self.rect.y = HEIGHT - 125
 
 
 def main():
@@ -122,7 +90,11 @@ def main():
     active_sprite_list = pygame.sprite.Group()
 
     player = Player()
-    player.rect.x = 340
+    track = Track()
+
+    player.rect.x = 125
+
+    active_sprite_list.add(track)
     active_sprite_list.add(player)
 
     # ----- LOCAL VARIABLES
