@@ -45,6 +45,13 @@ class Player (pygame.sprite.Sprite):
         self.calc_grav()
         self.rect.y += self.vel_y
 
+        # Stop user from phasing into the track
+        track_hit_list = pygame.sprite.spritecollide(self, self.track_list, False)
+        for track in track_hit_list:
+            if self.vel_y > 0:
+                self.rect.bottom = track.rect.top
+            self.rect.top = track.rect.bottom
+
     def calc_grav(self):
         if self.vel_y == 0:
             self.vel_y = 1
@@ -56,18 +63,11 @@ class Player (pygame.sprite.Sprite):
             self.vel_y = 0
             self.rect.y = HEIGHT - self.rect.height
 
-    def jump(self):
-        self.rect.y += 2
-        platform_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
-        self.rect.y -= 2
 
-        # If it is ok to jump, set our speed upwards
-        if len(platform_hit_list) > 0 or self.rect.bottom >= HEIGHT:
-            self.vel_y = -10
-
-
-class Track (pygame.sprite.Sprite):
-    def __init__(self):
+class Track (object):
+    def __init__(self, player):
+        self.track_list = pygame.sprite.Group()
+        self.player = player
         super().__init__()
 
         width = WIDTH
@@ -90,11 +90,9 @@ def main():
     active_sprite_list = pygame.sprite.Group()
 
     player = Player()
-    track = Track()
 
     player.rect.x = 125
 
-    active_sprite_list.add(track)
     active_sprite_list.add(player)
 
     # ----- LOCAL VARIABLES
