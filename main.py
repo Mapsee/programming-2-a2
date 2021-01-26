@@ -15,12 +15,44 @@ WIDTH = 1280
 HEIGHT = 720
 TITLE = "RUN RUN!"
 
+GROUND_HEIGHT = HEIGHT - 70
+
 pygame.init()
 dimensions = (WIDTH, HEIGHT)
 screen = pygame.display.set_mode(dimensions)
 
 
 # User controlled block
+
+class Track(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        width = WIDTH
+        height = 70
+
+        self.image = pygame.Surface([width, height])
+        self.image.fill(GRAY)
+
+        self.rect = self.image.get_rect()
+
+        if self.rect.y < HEIGHT - 70:
+            self.rect.y = HEIGHT - 70
+
+class Obstacles:
+    def __init__(self, speed=10):
+        self.colour = RED
+        self.rect.bottom = GROUND_HEIGHT - 11
+        self.rect.left = SCREEN_WIDTH
+        
+        self.speed = speed
+        
+        self.range = 240
+    
+        
+            
+        
+        
+        
 class Player (pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -28,72 +60,75 @@ class Player (pygame.sprite.Sprite):
         # Image
         width = 125
         height = 125
+        
         self.image = pygame.Surface([width, height])
         self.image.fill(BLACK)
 
         # Rect
         self.rect = self.image.get_rect()
-
-        # Speed
-        self.vel_y = 0
-
-        # List of sprites we can collide with
-        self.level = None
-
+        
+        # Jump
+        self.rect.bottom = GROUND_HEIGHT
+        self.rect.left = 70
+        
+        self.jump_limit = GROUND_HEIGHT - 290
+        self.jump_speed = 50
+        self.gravity_up = 4
+        self.gravity_down = 2
+        
+        # Set booleans
+        self.idle = True
+        self.running = False
+        self.jumping = False
+        self.falling = False
+        
+        self.call_count = 0
+    
     # Move the block
     def update(self):
-        self.calc_grav()
-        self.rect.y += self.vel_y
+        
+        if self.jumping:
 
-        # Stop user from phasing into the track
-        track_hit_list = pygame.sprite.spritecollide(self, self.track_list, False)
-        for track in track_hit_list:
-            if self.vel_y > 0:
-                self.rect.bottom = track.rect.top
-            self.rect.top = track.rect.bottom
+            if not self.falling:
+                self.rect.bottom -= self.jump_speed
 
-    def calc_grav(self):
-        if self.vel_y == 0:
-            self.vel_y = 1
-        else:
-            self.vel_y += .35
+                if self.jump_speed >= self.gravity_up:
+                    self.jump_speed -= self.gravity_up
 
-        # See if we are on the ground.
-        if self.rect.y >= HEIGHT - self.rect.height and self.vel_y >= 0:
-            self.vel_y = 0
-            self.rect.y = HEIGHT - self.rect.height
+                if self.rect.bottom < self.jump_limit:
 
+                    self.jump_speed = 0
 
-class Track (object):
-    def __init__(self, player):
-        self.track_list = pygame.sprite.Group()
-        self.player = player
-        super().__init__()
+                    self.falling = True
 
-        width = WIDTH
-        height = 125
+            else:
+                self.rect.bottom += self.jump_speed
+                self.jump_speed += self.gravity_down
 
-        self.image = pygame.Surface([width, height])
-        self.image.fill(GRAY)
+                if self.rect.bottom > GROUND_HEIGHT:
 
-        self.rect = self.image.get_rect()
+                    self.rect.bottom = GROUND_HEIGHT
 
-        if self.rect.y < HEIGHT - 125:
-            self.rect.y = HEIGHT - 125
+                    self.jump_speed = 50
 
+                    self.jumping = False
+                    self.falling = False
+                    self.running = True
 
+        self.call_count = self.call_count + 1  
+        
 def main():
     # ----- SCREEN PROPERTIES
     pygame.display.set_caption(TITLE)
 
-    # Create the objects
+    # Create
     active_sprite_list = pygame.sprite.Group()
 
     player = Player()
-
-    player.rect.x = 125
+    track = Track()
 
     active_sprite_list.add(player)
+    active_sprite_list.add(track)
 
     # ----- LOCAL VARIABLES
     done = False
@@ -105,11 +140,16 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+        
+            if event.type == pygame.key.get_pressed():
+                if event.key == pygame.K_SPACE or pygame.K_UP:
+                    if not player.jumping:
+                        player.jumping = True
+                        player.running = False
 
-            # Controls
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    player.jump()
+                    if player.idle:
+                        player.idle = False
+  
 
         # Update the player
         active_sprite_list.update()
