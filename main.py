@@ -3,6 +3,7 @@
 # Make a game that user controls an object on a track, track moves, dodge scenery items, see how far user can go
 
 import pygame
+import random
 
 # Colours
 BLACK = (0, 0, 0)
@@ -16,6 +17,7 @@ HEIGHT = 720
 TITLE = "RUN RUN!"
 
 GROUND_HEIGHT = HEIGHT - 70
+MAX_OBSTACLES = 5
 
 pygame.init()
 dimensions = (WIDTH, HEIGHT)
@@ -23,7 +25,6 @@ screen = pygame.display.set_mode(dimensions)
 
 
 # User controlled block
-
 class Track(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -38,27 +39,37 @@ class Track(pygame.sprite.Sprite):
         if self.rect.y < HEIGHT - 70:
             self.rect.y = HEIGHT - 70
 
-class Obstacles:
-    def __init__(self, speed=10):
-        self.colour = RED
-        self.rect.bottom = GROUND_HEIGHT - 11
-        self.rect.left = SCREEN_WIDTH
-        
-        self.speed = speed
-        
-        self.range = 240
-    
-        
-            
-        
-        
-        
+
+class Obstacle (pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+
+        width = random.randrange(20, 50)
+        height = random.randrange(40, 100)
+
+        self.image = pygame.Surface([width, height])
+        self.image.fill(RED)
+
+        # Rect
+        self.rect = self.image.get_rect()
+
+        self.rect.bottom = GROUND_HEIGHT
+        self.rect.left = WIDTH
+        self.x_vel = random.randrange(-7, -3)
+
+    def update(self):
+        self.rect.x += self.x_vel
+
+        if self.rect.right < 0:
+            self.rect.left = WIDTH
+
+
 class Player (pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
         # Image
-        width = 125
+        width = 90
         height = 125
         
         self.image = pygame.Surface([width, height])
@@ -71,7 +82,7 @@ class Player (pygame.sprite.Sprite):
         self.rect.bottom = GROUND_HEIGHT
         self.rect.left = 70
         
-        self.jump_limit = GROUND_HEIGHT - 290
+        self.jump_limit = GROUND_HEIGHT - 340
         self.jump_speed = 50
         self.gravity_up = 4
         self.gravity_down = 2
@@ -88,7 +99,6 @@ class Player (pygame.sprite.Sprite):
     def update(self):
         
         if self.jumping:
-
             if not self.falling:
                 self.rect.bottom -= self.jump_speed
 
@@ -96,9 +106,7 @@ class Player (pygame.sprite.Sprite):
                     self.jump_speed -= self.gravity_up
 
                 if self.rect.bottom < self.jump_limit:
-
                     self.jump_speed = 0
-
                     self.falling = True
 
             else:
@@ -115,24 +123,35 @@ class Player (pygame.sprite.Sprite):
                     self.falling = False
                     self.running = True
 
-        self.call_count = self.call_count + 1  
-        
+        self.call_count = self.call_count + 1
+
+
 def main():
     # ----- SCREEN PROPERTIES
     pygame.display.set_caption(TITLE)
 
     # Create
-    active_sprite_list = pygame.sprite.Group()
+    all_sprites = pygame.sprite.Group()
+    enemy_sprite_list = pygame.sprite.Group()
+    player_sprite = pygame.sprite.Group()
 
+    obstacle = Obstacle()
     player = Player()
     track = Track()
 
-    active_sprite_list.add(player)
-    active_sprite_list.add(track)
+    all_sprites.add(player)
+    all_sprites.add(track)
+    all_sprites.add(obstacle)
+    player_sprite.add(player)
+    enemy_sprite_list.add(obstacle)
 
     # ----- LOCAL VARIABLES
     done = False
     clock = pygame.time.Clock()
+
+    for i in range(MAX_OBSTACLES):
+        obstacle = Obstacle()
+        enemy_sprite_list.add(obstacle)
 
     # ----- MAIN LOOP
     while not done:
@@ -140,25 +159,25 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
-        
-            if event.type == pygame.key.get_pressed():
-                if event.key == pygame.K_SPACE or pygame.K_UP:
-                    if not player.jumping:
-                        player.jumping = True
-                        player.running = False
 
-                    if player.idle:
-                        player.idle = False
-  
+        key = pygame.key.get_pressed()
+
+        if key[pygame.K_SPACE]:
+            if not player.jumping:
+                player.jumping = True
+                player.running = False
+
+            if player.idle:
+                player.idle = False
 
         # Update the player
-        active_sprite_list.update()
+        all_sprites.update()
 
         # ----- LOGIC
 
         # ----- DRAW
         screen.fill(WHITE)
-        active_sprite_list.draw(screen)
+        all_sprites.draw(screen)
 
         # ----- UPDATE
         pygame.display.flip()
