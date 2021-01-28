@@ -21,6 +21,7 @@ NUM_BLOCKS = 75
 NUM_ENEMIES = 2
 
 
+
 class Block(pygame.sprite.Sprite):
     def __init__(self):
         # call the superclass constructor
