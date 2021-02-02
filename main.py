@@ -39,9 +39,9 @@ class Track(pygame.sprite.Sprite):
             self.rect.y = HEIGHT - 70
 
 
-class Obstacle(pygame.sprite.Sprite):
+class Obstacle (pygame.sprite.Sprite):
 
-    def __init__(self, speed=-6):
+    def __init__(self):
         super().__init__()
         width = random.randrange(20, 50)
         height = random.randrange(40, 100)
@@ -52,10 +52,29 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.bottom = GROUND_HEIGHT
         self.rect.left = WIDTH
-        self.speed = speed
 
     def update(self):
-        self.rect.x += self.speed
+        self.rect.x -= game_speed
+        if self.rect.right < 0:
+            self.rect.left = WIDTH
+
+
+class BiggerObstacle (pygame.sprite.Sprite):
+
+    def __init__(self):
+        super().__init__()
+        width = random.randrange(40, 80)
+        height = random.randrange(70, 160)
+        self.image = pygame.Surface([width, height])
+        self.image.fill(RED)
+
+        # Rect
+        self.rect = self.image.get_rect()
+        self.rect.bottom = GROUND_HEIGHT
+        self.rect.left = WIDTH
+
+    def update(self):
+        self.rect.x -= game_speed
         if self.rect.right < 0:
             self.rect.left = WIDTH
 
@@ -65,7 +84,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
 
         # Image
-        width = 90
+        width = 80
         height = 125
 
         self.image = pygame.Surface([width, height])
@@ -130,6 +149,7 @@ def main():
     enemy_sprite_list = pygame.sprite.Group()
     player_sprite = pygame.sprite.Group()
 
+    biggerobstacle = BiggerObstacle()
     obstacle = Obstacle()
     player = Player()
     track = Track()
@@ -137,8 +157,8 @@ def main():
     global game_speed, points
 
     points = 0
-    game_speed = 15
-    lives = 1
+    game_speed = 10
+    death_count = 0
 
     font = pygame.font.Font('freesansbold.ttf', 20)
 
@@ -153,12 +173,14 @@ def main():
         textRect.center = (1200, 40)
         screen.blit(text, textRect)
 
+    all_sprites.add(biggerobstacle)
     all_sprites.add(player)
     all_sprites.add(track)
     all_sprites.add(obstacle)
 
     player_sprite.add(player)
 
+    enemy_sprite_list.add(biggerobstacle)
     enemy_sprite_list.add(obstacle)
 
     # ----- LOCAL VARIABLES
@@ -189,9 +211,10 @@ def main():
         # ----- LOGIC
         death_list = pygame.sprite.spritecollide(player, enemy_sprite_list, False)
         for enemies in death_list:
-            lives -= 1
-            if lives == 0:
-                exit()
+            death_count += 1
+            if death_count == 1:
+                pygame.time.delay(2000)
+                menu(death_count)
 
         # ----- DRAW
         screen.fill(WHITE)
@@ -202,8 +225,30 @@ def main():
         pygame.display.flip()
         clock.tick(60)
 
-    pygame.quit()
 
+def menu(death_count):
+    global points
+    run = True
+    while run:
+        screen.fill((255, 255, 255))
+        font = pygame.font.Font('freesansbold.ttf', 30)
 
-if __name__ == "__main__":
-    main()
+        if death_count == 0:
+            text = font.render("Press any Key to Start", True, (0, 0, 0))
+        elif death_count > 0:
+            text = font.render("Press any Key to Restart", True, (0, 0, 0))
+            score = font.render("Your Score: " + str(points), True, (0, 0, 0))
+            scoreRect = score.get_rect()
+            scoreRect.center = (WIDTH // 2, HEIGHT // 2 + 50)
+            screen.blit(score, scoreRect)
+        textRect = text.get_rect()
+        textRect.center = (WIDTH // 2, HEIGHT // 2)
+        screen.blit(text, textRect)
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.KEYDOWN:
+                main()
+
+menu(death_count=0)
