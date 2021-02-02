@@ -58,7 +58,7 @@ class BiggerObstacle (pygame.sprite.Sprite):
         # Rect
         self.rect = self.image.get_rect()
         self.rect.bottom = GROUND_HEIGHT
-        self.rect.left = WIDTH + 500
+        self.rect.left = WIDTH + 760
 
     def update(self):
         self.rect.x -= game_speed
