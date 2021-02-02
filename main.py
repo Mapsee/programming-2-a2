@@ -2,6 +2,7 @@
 # Make a game that user controls an object on a track, track moves, dodge scenery items, see how far user can go
 import pygame
 import random
+
 # Colours
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -15,6 +16,28 @@ GROUND_HEIGHT = HEIGHT - 70
 pygame.init()
 dimensions = (WIDTH, HEIGHT)
 screen = pygame.display.set_mode(dimensions)
+
+
+class Cloud(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+
+        self.x = WIDTH + random.randint(800, 1000)
+        self.y = random.randint(50, 100)
+        self.image = pygame.image.load("./main_images/cloudx.png")
+        self.image = pygame.transform.scale(self.image, (200, 100))
+        self.width = 100
+
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        self.x -= game_speed - 5
+        if self.x < -self.width:
+            self.x = WIDTH + random.randint(2500, 3000)
+            self.y = random.randint(50, 100)
+
+    def draw(self, screen):
+        screen.blit(self.image, (self.x, self.y))
 
 
 # User controlled block
@@ -119,14 +142,27 @@ def main():
     all_sprites = pygame.sprite.Group()
     enemy_sprite_list = pygame.sprite.Group()
     player_sprite = pygame.sprite.Group()
-    biggerobstacle = BiggerObstacle()
+
+    cloud = Cloud()
+    bigger_obstacle = BiggerObstacle()
     obstacle = Obstacle()
     player = Player()
     track = Track()
+
+    all_sprites.add(bigger_obstacle)
+    all_sprites.add(player)
+    all_sprites.add(track)
+    all_sprites.add(obstacle)
+    player_sprite.add(player)
+    enemy_sprite_list.add(bigger_obstacle)
+    enemy_sprite_list.add(obstacle)
+
     global game_speed, points
+
     points = 0
     game_speed = 10
     death_count = 0
+
     font = pygame.font.Font('freesansbold.ttf', 20)
 
     def score():
@@ -138,16 +174,11 @@ def main():
         text_rect = text.get_rect()
         text_rect.center = (1200, 40)
         screen.blit(text, text_rect)
-    all_sprites.add(biggerobstacle)
-    all_sprites.add(player)
-    all_sprites.add(track)
-    all_sprites.add(obstacle)
-    player_sprite.add(player)
-    enemy_sprite_list.add(biggerobstacle)
-    enemy_sprite_list.add(obstacle)
+
     # ----- LOCAL VARIABLES
     done = False
     clock = pygame.time.Clock()
+
     # ----- MAIN LOOP
     while not done:
         # -- Event Handler
@@ -163,6 +194,8 @@ def main():
                 player.idle = False
         # Update the player
         all_sprites.update()
+        cloud.update()
+
         # ----- LOGIC
         death_list = pygame.sprite.spritecollide(player, enemy_sprite_list, False)
         for enemies in death_list:
@@ -170,10 +203,13 @@ def main():
             if death_count == 1:
                 pygame.time.delay(2000)
                 menu(death_count)
+
         # ----- DRAW
         screen.fill(WHITE)
         all_sprites.draw(screen)
+        cloud.draw(screen)
         score()
+
         # ----- UPDATE
         pygame.display.flip()
         clock.tick(60)
