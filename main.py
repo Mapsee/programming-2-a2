@@ -15,9 +15,9 @@ GROUND_HEIGHT = HEIGHT - 70
 pygame.init()
 dimensions = (WIDTH, HEIGHT)
 screen = pygame.display.set_mode(dimensions)
+
+
 # User controlled block
-
-
 class Track(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
