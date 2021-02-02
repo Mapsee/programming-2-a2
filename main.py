@@ -12,7 +12,10 @@ RED = (255, 0, 0)
 WIDTH = 1280
 HEIGHT = 720
 TITLE = "RUN RUN!"
+
+MAX_CLOUDS = 3
 GROUND_HEIGHT = HEIGHT - 70
+
 pygame.init()
 dimensions = (WIDTH, HEIGHT)
 screen = pygame.display.set_mode(dimensions)
@@ -142,6 +145,7 @@ def main():
     all_sprites = pygame.sprite.Group()
     enemy_sprite_list = pygame.sprite.Group()
     player_sprite = pygame.sprite.Group()
+    cloud_sprite_list = pygame.sprite.Group()
 
     cloud = Cloud()
     bigger_obstacle = BiggerObstacle()
@@ -149,6 +153,7 @@ def main():
     player = Player()
     track = Track()
 
+    cloud_sprite_list.add(cloud)
     all_sprites.add(bigger_obstacle)
     all_sprites.add(player)
     all_sprites.add(track)
@@ -178,6 +183,11 @@ def main():
     # ----- LOCAL VARIABLES
     done = False
     clock = pygame.time.Clock()
+
+    # Create more clouds
+    for i in range(MAX_CLOUDS):
+        cloud = Cloud()
+        cloud_sprite_list.add(cloud)
 
     # ----- MAIN LOOP
     while not done:
