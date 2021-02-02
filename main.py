@@ -24,17 +24,15 @@ screen = pygame.display.set_mode(dimensions)
 class Cloud(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-
         self.x = WIDTH + random.randint(800, 1000)
         self.y = random.randint(50, 100)
         self.image = pygame.image.load("./main_images/cloudx.png")
         self.image = pygame.transform.scale(self.image, (200, 100))
         self.width = 100
-
         self.rect = self.image.get_rect()
 
     def update(self):
-        self.x -= game_speed - 5
+        self.x -= game_speed
         if self.x < -self.width:
             self.x = WIDTH + random.randint(2500, 3000)
             self.y = random.randint(50, 100)
@@ -165,7 +163,7 @@ def main():
     global game_speed, points
 
     points = 0
-    game_speed = 10
+    game_speed = 3
     death_count = 0
 
     font = pygame.font.Font('freesansbold.ttf', 20)
@@ -185,9 +183,10 @@ def main():
     clock = pygame.time.Clock()
 
     # Create more clouds
+    cloud_list = []
     for i in range(MAX_CLOUDS):
         cloud = Cloud()
-        cloud_sprite_list.add(cloud)
+        cloud_list.append(cloud)
 
     # ----- MAIN LOOP
     while not done:
@@ -205,6 +204,8 @@ def main():
         # Update the player
         all_sprites.update()
         cloud.update()
+        for cloud in cloud_list:
+            cloud.update()
 
         # ----- LOGIC
         death_list = pygame.sprite.spritecollide(player, enemy_sprite_list, False)
@@ -218,6 +219,8 @@ def main():
         screen.fill(WHITE)
         all_sprites.draw(screen)
         cloud.draw(screen)
+        for cloud in cloud_list:
+            cloud.draw(screen)
         score()
 
         # ----- UPDATE
