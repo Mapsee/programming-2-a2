@@ -13,21 +13,23 @@ WIDTH = 1280
 HEIGHT = 720
 TITLE = "RUN RUN!"
 
-MAX_CLOUDS = 3
+MAX_STARS = 15
 GROUND_HEIGHT = HEIGHT - 70
 
 pygame.init()
 dimensions = (WIDTH, HEIGHT)
 screen = pygame.display.set_mode(dimensions)
 
+BG = pygame.image.load("./main_images/space.jpg")
 
-class Cloud(pygame.sprite.Sprite):
+
+class Stars(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.x = WIDTH + random.randint(800, 1000)
+        self.x = WIDTH + random.randint(1, 5000)
         self.y = random.randint(50, 100)
-        self.image = pygame.image.load("./main_images/cloudx.png")
-        self.image = pygame.transform.scale(self.image, (200, 100))
+        self.image = pygame.image.load("./main_images/stars.png")
+        self.image = pygame.transform.scale(self.image, (40, 40))
         self.width = 100
         self.rect = self.image.get_rect()
 
@@ -97,7 +99,7 @@ class Player(pygame.sprite.Sprite):
         width = 80
         height = 125
         self.image = pygame.Surface([width, height])
-        self.image.fill(BLACK)
+        self.image.fill(WHITE)
         # Rect
         self.rect = self.image.get_rect()
         # Jump
@@ -143,15 +145,15 @@ def main():
     all_sprites = pygame.sprite.Group()
     enemy_sprite_list = pygame.sprite.Group()
     player_sprite = pygame.sprite.Group()
-    cloud_sprite_list = pygame.sprite.Group()
+    star_sprite_list = pygame.sprite.Group()
 
-    cloud = Cloud()
+    star = Stars()
     bigger_obstacle = BiggerObstacle()
     obstacle = Obstacle()
     player = Player()
     track = Track()
 
-    cloud_sprite_list.add(cloud)
+    star_sprite_list.add(star)
     all_sprites.add(bigger_obstacle)
     all_sprites.add(player)
     all_sprites.add(track)
@@ -160,8 +162,10 @@ def main():
     enemy_sprite_list.add(bigger_obstacle)
     enemy_sprite_list.add(obstacle)
 
-    global game_speed, points
+    global game_speed, points, x_pos_bg, y_pos_bg
 
+    x_pos_bg = 0
+    y_pos_bg = -600
     points = 0
     game_speed = 3
     death_count = 0
@@ -173,20 +177,30 @@ def main():
         points += 1
         if points % 100 == 0:
             game_speed += 1
-        text = font.render("Points: " + str(points), True, (0, 0, 0))
+        text = font.render("Points: " + str(points), True, (255, 255, 255))
         text_rect = text.get_rect()
         text_rect.center = (1200, 40)
         screen.blit(text, text_rect)
+
+    def background():
+        global x_pos_bg, y_pos_bg
+        image_width = BG.get_width()
+        screen.blit(BG, (x_pos_bg, y_pos_bg))
+        screen.blit(BG, (image_width + x_pos_bg, y_pos_bg))
+        if x_pos_bg <= -image_width:
+            screen.blit(BG, (image_width + x_pos_bg, y_pos_bg))
+            x_pos_bg = 0
+        x_pos_bg -= game_speed
 
     # ----- LOCAL VARIABLES
     done = False
     clock = pygame.time.Clock()
 
-    # Create more clouds
-    cloud_list = []
-    for i in range(MAX_CLOUDS):
-        cloud = Cloud()
-        cloud_list.append(cloud)
+    # Create more stars
+    star_list = []
+    for i in range(MAX_STARS):
+        star = Stars()
+        star_list.append(star)
 
     # ----- MAIN LOOP
     while not done:
@@ -203,9 +217,8 @@ def main():
                 player.idle = False
         # Update the player
         all_sprites.update()
-        cloud.update()
-        for cloud in cloud_list:
-            cloud.update()
+        for star in star_list:
+            star.update()
 
         # ----- LOGIC
         death_list = pygame.sprite.spritecollide(player, enemy_sprite_list, False)
@@ -217,10 +230,12 @@ def main():
 
         # ----- DRAW
         screen.fill(WHITE)
+        background()
         all_sprites.draw(screen)
-        cloud.draw(screen)
-        for cloud in cloud_list:
-            cloud.draw(screen)
+
+        for star in star_list:
+            star.draw(screen)
+
         score()
 
         # ----- UPDATE
