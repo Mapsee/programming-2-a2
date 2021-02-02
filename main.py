@@ -17,7 +17,6 @@ HEIGHT = 720
 TITLE = "RUN RUN!"
 
 GROUND_HEIGHT = HEIGHT - 70
-MAX_OBSTACLES = 5
 
 pygame.init()
 dimensions = (WIDTH, HEIGHT)
@@ -40,64 +39,61 @@ class Track(pygame.sprite.Sprite):
             self.rect.y = HEIGHT - 70
 
 
-class Obstacle (pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
+class Obstacle(pygame.sprite.Sprite):
 
+    def __init__(self, speed=-6):
+        super().__init__()
         width = random.randrange(20, 50)
         height = random.randrange(40, 100)
-
         self.image = pygame.Surface([width, height])
         self.image.fill(RED)
 
         # Rect
         self.rect = self.image.get_rect()
-
         self.rect.bottom = GROUND_HEIGHT
         self.rect.left = WIDTH
-        self.x_vel = random.randrange(-7, -3)
+        self.speed = speed
 
     def update(self):
-        self.rect.x += self.x_vel
-
+        self.rect.x += self.speed
         if self.rect.right < 0:
             self.rect.left = WIDTH
 
 
-class Player (pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
         # Image
         width = 90
         height = 125
-        
+
         self.image = pygame.Surface([width, height])
         self.image.fill(BLACK)
 
         # Rect
         self.rect = self.image.get_rect()
-        
+
         # Jump
         self.rect.bottom = GROUND_HEIGHT
         self.rect.left = 70
-        
+
         self.jump_limit = GROUND_HEIGHT - 340
         self.jump_speed = 50
         self.gravity_up = 4
         self.gravity_down = 2
-        
+
         # Set booleans
         self.idle = True
         self.running = False
         self.jumping = False
         self.falling = False
-        
+
         self.call_count = 0
-    
+
     # Move the block
     def update(self):
-        
+
         if self.jumping:
             if not self.falling:
                 self.rect.bottom -= self.jump_speed
@@ -114,7 +110,6 @@ class Player (pygame.sprite.Sprite):
                 self.jump_speed += self.gravity_down
 
                 if self.rect.bottom > GROUND_HEIGHT:
-
                     self.rect.bottom = GROUND_HEIGHT
 
                     self.jump_speed = 50
@@ -139,21 +134,39 @@ def main():
     player = Player()
     track = Track()
 
+    global game_speed, points
+
+    points = 0
+    game_speed = 15
+    lives = 1
+
+    font = pygame.font.Font('freesansbold.ttf', 20)
+
+    def score():
+        global points, game_speed
+        points += 1
+        if points % 100 == 0:
+            game_speed += 1
+
+        text = font.render("Points: " + str(points), True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (1200, 40)
+        screen.blit(text, textRect)
+
     all_sprites.add(player)
     all_sprites.add(track)
     all_sprites.add(obstacle)
+
     player_sprite.add(player)
+
     enemy_sprite_list.add(obstacle)
 
     # ----- LOCAL VARIABLES
     done = False
     clock = pygame.time.Clock()
 
-    for i in range(MAX_OBSTACLES):
-        obstacle = Obstacle()
-        enemy_sprite_list.add(obstacle)
-
     # ----- MAIN LOOP
+
     while not done:
         # -- Event Handler
         for event in pygame.event.get():
@@ -174,11 +187,17 @@ def main():
         all_sprites.update()
 
         # ----- LOGIC
+        death_list = pygame.sprite.spritecollide(player, enemy_sprite_list, False)
+        for enemies in death_list:
+            lives -= 1
+            if lives == 0:
+                exit()
 
         # ----- DRAW
         screen.fill(WHITE)
         all_sprites.draw(screen)
 
+        score()
         # ----- UPDATE
         pygame.display.flip()
         clock.tick(60)
